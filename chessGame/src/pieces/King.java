@@ -6,11 +6,11 @@ import chess.Player;
 import chess.Position;
 
 public class King extends Piece {
-	
+	private boolean hasMoved = false;
 
 	public King( Player.Side Side ) {
 		
-		super( Side,'\u2654');
+		super( Side);
 		
 		// TODO Auto-generated constructor stub
 	}
@@ -26,17 +26,15 @@ public class King extends Piece {
 		
 	}
 	
-	public char getSymbolChar() {
-		if(this.getSide() == Player.Side.WHITE) {
-			return '\u2654';
-			
-		}else {
-			return '\u265A';
-			
-		}
-		
-		
+	public boolean getHasMoved() {
+		return hasMoved;
 	}
+	
+	public void setHasMoved(boolean hasMoved) {
+		 this.hasMoved = hasMoved;
+	}
+	
+
 	
 	public String getName() {
 		if(this.getSide() == Player.Side.WHITE) {
@@ -87,15 +85,20 @@ public class King extends Piece {
 		
 		if(checkSide(this.getSide(), nx, ny, positions)) {
 			if(moveH&&moveV) {
+				boolean check = this.checkDia(cx, cy, nx, ny, positions,true);
 				
-				return this.checkDia(cx, cy, nx, ny, positions,true);
+				
+				
+				return check;
 			}
 			else if(((cx == nx) && (Math.abs(ny-cy) == 1))) {
 			//sideways 1 square
+				
 				return true;
 			
 			}else if(((cy == ny) && (Math.abs(nx-cx) == 1))) {
 			//vertical 1 square
+				
 				return true;
 			
 			}

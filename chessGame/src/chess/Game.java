@@ -1,12 +1,11 @@
-/**
- * 
- */
 package chess;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+import chessgui.ChessFrame;
 import pieces.Piece;
+import pieces.Queen;
 
 /**
  * 
@@ -16,53 +15,50 @@ public class Game {
 	private Player player1;
 	private Player player2;
 	private Player playerAtTurn;
-	private boolean kingIsChecked = false;
 	private boolean gameEnd = false;
 	
 	ArrayList<Piece> defeatedPieces = new ArrayList<Piece>();
-	
-	
-	
 
 	/**
 	 * 
 	 */
 	public Game() {
-		//init();
 	}
 	
 	/**
-	 * initialize chessboard and create two new players
+	 * initialize chessboard and create two new players.
 	 * 
 	 */
 	public void init() {
 		this.chessBoard = new ChessBoard();
-		//chessBoard.initializeBoard();
+		
 		this.player1 = new Player(Player.Side.WHITE, this);
 		this.player2 = new Player(Player.Side.BLACK, this);
-		kingIsChecked = false;
-		
+		defeatedPieces = new ArrayList<Piece>();
+			
 	}
 	
 	public void startGame() {
 		init();
-		//chessBoard.showBoard();
 		playerAtTurn = player1;
 		
+	}
+	
+	public ArrayList<Piece> getDefeatedPieces() {
+		return defeatedPieces;
 	}
 	
 	public Player getPlayerAtTurn() {
 		return playerAtTurn;
 	}
 	public Player getPlayerNotAtTurn() {
-		Player curPlayer = getPlayerAtTurn();
-		Player notPlayer = null;
-		if(player1 == curPlayer) {
-			notPlayer = player2;
+	
+		if(player1 == getPlayerAtTurn()) {
+			return player2;
 		}else {
-			notPlayer = player1;
+			return player1;
 		}
-		return notPlayer;
+		
 	}
 	
 	public void setPlayerAtTurn(Player player) {
@@ -117,10 +113,8 @@ public class Game {
 		ArrayList<ArrayList<Integer>> possibleMoves = getPlayerAtTurn().getPossibleMoves();
 		boolean isPossible =false;
 		
-		boolean isKing = getPlayerAtTurn().getActivePosition().getPiece().getTypeString()=="king";
-		System.out.println("player at turn: "+ getPlayerAtTurn().getSide());
-		System.out.println("isKing?: " + isKing);
-		System.out.println("is king checked: "+getPlayerAtTurn().getKingIsChecked());
+		boolean isKing = getPlayerAtTurn().getActivePosition().getPiece().getTypeString().equals("king");
+		
 		if(getPlayerAtTurn().getICanEscape()) {
 
 			
@@ -136,7 +130,7 @@ public class Game {
 			
 		}
 		else if((getPlayerAtTurn().getKingIsChecked()&&isKing)||isKing) {
-			System.out.println(possibleMoves + " possible moves king");
+			
 			 isPossible = piece.checkLegalMove(curPosition,newPosition,positions,possibleMoves);
 		}else {
 			isPossible =piece.checkLegalMove(curPosition,newPosition,positions,false,true);
@@ -159,6 +153,18 @@ public class Game {
 			getPlayerAtTurn().setICanEscape(false);
 			getPlayerNotAtTurn().setPossibleMoves(getMyKingPossibleMoves(positions,getNotActiveSide()));
 			
+			if(newPos.getPiece().getTypeString().equals("pawn")) {
+				if(newPos.getPiece().getSide() == Player.Side.BLACK) {
+					if(newPos.getX() == 7) {
+						newPos.setPiece(new Queen(Player.Side.BLACK));
+					}					
+				}else {
+					if(newPos.getX() == 0) {
+						newPos.setPiece(new Queen(Player.Side.WHITE));
+					}					
+				}
+				
+			}
 			
 			if(isMyKingChecked(positions,false, getNotActiveSide())) {
 				getPlayerNotAtTurn().setKingIsChecked(true);
@@ -166,33 +172,45 @@ public class Game {
 				ArrayList<ArrayList<Integer>> possibleMoves2= getMyKingPossibleMoves(positions,getNotActiveSide());
 				if(possibleMoves2.size()==0) {
 					if(!isMate(positions)) {
-						getPlayerNotAtTurn().setKingIsChecked(true);
+						//getPlayerNotAtTurn().setKingIsChecked(true);
 
-						nextMove();
+						switchTurns();
 					}else {
 						gameIsDone();
 					}
 					
 				}else {
-					nextMove();
+					switchTurns();
 				}
 				
 			}else {
-				nextMove();
+				switchTurns();
 			}
+			
+		}else if(getPlayerAtTurn().canCastle(positions,newPosition)) {
+			getPlayerAtTurn().castle(positions,newPosition);
+			
+			getPlayerAtTurn().setPossibleMoves(getMyKingPossibleMoves(positions,getActiveSide()));
+			switchTurns();
 			
 		}
 		}
 		
 	}
 	
+	public void movePiece(int cx, int cy, int nx, int ny, Position position) {
+		ArrayList<ArrayList<Position>> positions = getPositions();
+		positions.get(nx).get(ny).setPiece(position.getPiece());
+		positions.get(cx).get(cy).setPiece(null);
+		
+		
+	}
+	
 	/**
-	 * sets the game at done.
+	 * sets the game at game over.
 	 */
 	public void gameIsDone() {
-		
 		gameEnd=true;
-		System.out.println("game over");
 	}
 	
     /*
@@ -217,8 +235,9 @@ public class Game {
 	/**
 	 * game moves to the next move. This means that the player at turn and the player not at turn switch places.
 	 */
-	public void nextMove() {
+	public void switchTurns() {
 		Player curPlayer = getPlayerAtTurn();
+		curPlayer.setActivePositionForce();
 		if(player1 == curPlayer) {
 			setPlayerAtTurn(player2);
 		}else {
@@ -263,7 +282,7 @@ public class Game {
 		
 				for(ArrayList<Position> row: positions) {
 					for(Position position: row) {
-						if(position.getPiece()!= null && position.getPiece().getSide()== activeSide&& position.getPiece().getTypeString()=="king") {
+						if(position.getPiece()!= null && position.getPiece().getSide()== activeSide&& position.getPiece().getTypeString().equals("king")) {
 							return position;
 							
 						}
@@ -277,7 +296,7 @@ public class Game {
 	
 
 	/**
-	 * Checks if my king is checked
+	 * Checks if the king is checked at the desired side.
 	 * If the param side is Player.Side.WHITE it returns the white king is checked.
 	 * If the param side is Player.Side.BLACK it returns the black king is checked.
 	 * @param positions the positions of the board to be checked.
@@ -333,7 +352,7 @@ public class Game {
 	
 
 	/**
-	 * Gets the possible moves of the king.
+	 * Gets the possible moves of the king in the given position.
 	 * @param positions
 	 * @param side
 	 * @return
@@ -344,7 +363,7 @@ public class Game {
 		{0,-1},{0,1},
 		{1,-1},{1,0},{1,1}};
 		ArrayList<ArrayList<Integer>> possibleMoves = new ArrayList();
-		boolean isMate = true;
+		
 		for(int i=0;i<8;i++) {
 			int x = posKing.getX()+moves[i][0];
 			int y = posKing.getY()+moves[i][1];
@@ -358,7 +377,7 @@ public class Game {
 					newPositions.get(posKing.getX()).get(posKing.getY()).setPiece(null);
 					
 					if(!isMyKingChecked(newPositions,true, side)) {
-						isMate = false;
+						
 						ArrayList<Integer> newMove = new ArrayList<Integer>();
 						newMove.add(x);
 						newMove.add(y);
@@ -383,7 +402,7 @@ public class Game {
 		for(ArrayList<Position> row: positions) {
 			
 			for(Position position: row) {
-				if(position.getPiece().getSide()==getNotActiveSide()) {
+				if(position.getPiece()!=null && position.getPiece().getSide() == getNotActiveSide()) {
 					isMate = !getPlayerNotAtTurn().canIescape(positions, position);
 					if(!isMate) {
 							return false;
@@ -396,11 +415,11 @@ public class Game {
 	}
 	
 	/**
-	 * copys to positions and returns a new arraylist of the copy of the positions.
+	 * copies the positions and returns a new arraylist of the copy of the positions.
 	 * 
 	 * This function makes a deep copy.
 	 * @param positions positions to be copied.
-	 * @return
+	 * @return the copied positions.
 	 */
 	public ArrayList<ArrayList<Position>> copyPositions(ArrayList<ArrayList<Position>> positions){
 		ArrayList<ArrayList<Position>> newPositions = new ArrayList();

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ public class ChessFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	Game game = new Game();
+	Game game;
 	ArrayList<ArrayList<SquareOnBoard>> squares= new ArrayList<ArrayList<SquareOnBoard>>();
 	ButtonGroup buttongroup = new ButtonGroup();
 	private Map<JButton, SquareOnBoard> buttonSquareMap = new HashMap<>();
@@ -57,6 +58,7 @@ public class ChessFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public ChessFrame() {
+		game = new Game();
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setBounds(100, 100, 800, 800);
 		contentPane = new JPanel();
@@ -78,7 +80,7 @@ public class ChessFrame extends JFrame {
 				//MyButton button = new MyButton(j,i);
  			   
 				
-				button.setBounds(160+i*60, 50+j*60, 60, 60);
+				button.setBounds(160+i*60, 80+j*60, 60, 60);
 				button.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						clickedOnPiece(e);
@@ -98,7 +100,6 @@ public class ChessFrame extends JFrame {
 		JButton clickedButton = (JButton) e.getSource();
 
 		 SquareOnBoard correspondingSquare = buttonSquareMap.get(clickedButton);
-	    // Now you can access the x and y values of the clicked MyButton
 		 if (correspondingSquare != null) {
 	            int clickedX = correspondingSquare.getX();
 	            int clickedY = correspondingSquare.getY();
@@ -127,9 +128,14 @@ public class ChessFrame extends JFrame {
 	
 	public void renderGameOver() {
 		JLabel label2 = new JLabel("game over");
-		label2.setBounds(100, 550, 100, 100);
+		if(game.getPlayerAtTurn().getSide() == Player.Side.BLACK) {
+			label2.setText("Black wins");
+		}else {
+			label2.setText("White wins");
+		}
+		label2.setBounds(380, 570, 100, 100);
 		JButton button2 = new JButton("Back to start screen");
-		button2.setBounds(400, 550, 200, 150);
+		button2.setBounds(450, 570, 200, 80);
 		button2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mijnInit();
@@ -142,7 +148,7 @@ public class ChessFrame extends JFrame {
 	}
 
 	public void mijnInit() {
-		System.out.println("mijninit");
+		
 		cleanScreen();
 		renderStartScreen();
 	}
@@ -159,7 +165,7 @@ public class ChessFrame extends JFrame {
 	
 	public void renderStartScreen() {
 		JButton button = new JButton("Start");
-		button.setBounds(100, 200, 100, 100);
+		button.setBounds(300, 200, 100, 100);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				startGame();
@@ -178,6 +184,27 @@ public class ChessFrame extends JFrame {
         
          int col =0;
          boolean turn = true;
+         
+         ArrayList<Piece> defeatedPieces = game.getDefeatedPieces();
+         int index =0;
+         for(Piece piece:defeatedPieces) {
+        	 if(piece.getSide() == Player.Side.WHITE) {
+        		 JLabel label = new JLabel();
+        		 label.setBounds(160+index*30, 40, 30, 30);
+        		 ImageIcon icon = new ImageIcon(piece.getSymbol());
+        		 
+        	     Image originalImage = icon.getImage();
+        	     int width = label.getWidth();
+        	     int height = label.getHeight();
+        	     Image resizedImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+      	        
+        	     ImageIcon resizedIcon = new ImageIcon(resizedImage);
+        	     label.setIcon(resizedIcon);
+
+         		 index++;
+         		contentPane.add(label);
+        	 }
+         }
 		
 		for (ArrayList<SquareOnBoard> squaresRow: squares) {
 			for (SquareOnBoard square: squaresRow) {
@@ -212,6 +239,24 @@ public class ChessFrame extends JFrame {
 			turn = !turn;
 			
 		}
+		index =0;
+        for(Piece piece:defeatedPieces) {
+       	 if(piece.getSide() == Player.Side.BLACK) {
+       		 JLabel label = new JLabel();
+       		label.setBounds(160+index*30, 570, 30, 30);
+       		 ImageIcon icon = new ImageIcon(piece.getSymbol());
+    		 
+    	     Image originalImage = icon.getImage();
+    	     int width = label.getWidth();
+    	     int height = label.getHeight();
+    	     Image resizedImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+  	        
+    	     ImageIcon resizedIcon = new ImageIcon(resizedImage);
+    	     label.setIcon(resizedIcon);
+        		 index++;
+        		contentPane.add(label);
+       	 }
+        }
 		contentPane.revalidate();
 		contentPane.repaint();
 	}

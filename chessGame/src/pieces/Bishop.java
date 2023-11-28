@@ -8,7 +8,7 @@ import chess.Position;
 public class Bishop extends Piece {
 
 	public Bishop(Player.Side Side) {
-		super( Side, '\u2501');
+		super( Side);
 		// TODO Auto-generated constructor stub
 	}
 	public String getSymbol() {
@@ -23,16 +23,16 @@ public class Bishop extends Piece {
 		
 	}
 	
-	public char getSymbolChar() {
-		if(this.getSide() == Player.Side.WHITE) {
-			return '\u2657';
-			
-		}else {
-			return '\u265D';
-			
-		}
+	public boolean getHasMoved() {
+		return false;
+	}
+	
+	@Override
+	public void setHasMoved(boolean hasMoved) {
+		// TODO Auto-generated method stub
 		
 	}
+	
 	public String getName() {
 		if(this.getSide() == Player.Side.WHITE) {
 			return "white bishop";
@@ -78,5 +78,6 @@ public class Bishop extends Piece {
 		
 		
 	}
+	
 
 }

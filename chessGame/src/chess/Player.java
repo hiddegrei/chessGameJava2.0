@@ -15,9 +15,9 @@ public class Player {
 	public enum Side {WHITE,BLACK};
 	private Side side = null;
 	private Position activePosition;
-	private ArrayList<ArrayList<Integer>> possibleMoves = new ArrayList();
+	private ArrayList<ArrayList<Integer>> possibleMoves = new ArrayList<ArrayList<Integer>>(); //the possible moves of the king of the player.
 
-	private ArrayList<Position> piecesToBeRemoved = new ArrayList();
+	private ArrayList<Position> piecesToBeRemoved = new ArrayList<Position>(); //pieces to be removed or blocked to get out of a check.
 	private Game game;
 	private boolean kingIsChecked = false;
 	private boolean iCanEscape = false;
@@ -62,6 +62,131 @@ public class Player {
 		return activePosition;
 	}
 	
+	public void setActivePositionForce() {
+		activePosition = null;
+	}
+	
+	/**
+	 * Performs castling for the player.
+	 * @param positions
+	 * @param position
+	 */
+	public void castle(ArrayList<ArrayList<Position>> positions,Position position) {
+		if(getSide() == Player.Side.WHITE) {
+			if(position.getX() == 7 && position.getY() == 6) {
+				
+				activePosition.getPiece().setHasMoved(true);
+				positions.get(7).get(7).getPiece().setHasMoved(true);
+				game.movePiece(7, 4, 7, 6, activePosition);
+				game.movePiece(7, 7, 7, 5, positions.get(7).get(7));
+
+			}else if(position.getX() == 7 && position.getY() == 2) {
+				//long side castle
+				
+				activePosition.getPiece().setHasMoved(true);
+				positions.get(7).get(0).getPiece().setHasMoved(true);
+				game.movePiece(7, 4, 7, 2, activePosition);
+				game.movePiece(7, 0, 7, 3, positions.get(7).get(0));
+
+			}
+		
+		}else {
+			
+			if(position.getX() == 0 && position.getY() == 6) {
+				
+				activePosition.getPiece().setHasMoved(true);
+				positions.get(0).get(0).getPiece().setHasMoved(true);
+				game.movePiece(0, 4, 7, 6, activePosition);
+				game.movePiece(0, 0, 0, 5, positions.get(0).get(0));
+
+			}else if(position.getX() == 0 && position.getY() == 2) {
+				//long side castle
+				
+				activePosition.getPiece().setHasMoved(true);
+				positions.get(0).get(0).getPiece().setHasMoved(true);
+				game.movePiece(0, 4, 0, 2, activePosition);
+				game.movePiece(0, 0, 0, 3, positions.get(0).get(0));
+
+			}
+			
+			
+		}
+	}
+	
+	/**
+	 * Checks if there is any piece between the king and the rook.
+	 * And checks if any of the opponent pieces prevents castling.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param positions
+	 * @return
+	 */
+	public boolean checkCanCastle(int x, int y,ArrayList<ArrayList<Position>> positions) {
+		if(positions.get(x).get(y).getPiece() != null && positions.get(x).get(y).getPiece().getName().equals(side == Player.Side.WHITE?"white rook":"black rook") && !positions.get(x).get(y).getPiece().getHasMoved()) {
+			ArrayList<ArrayList<Integer>> positionsToCheck = givePositionsToCheck(positions.get(x).get(y),activePosition);
+			
+			for(ArrayList<Integer> positionToCheck: positionsToCheck) {
+				
+				if(positions.get(positionToCheck.get(0)).get(positionToCheck.get(1)).getPiece() != null){
+					
+					return false;
+					
+				}
+				for(ArrayList<Position> row: positions) {
+					
+					for(Position positionOpponent: row) {
+						if(positionOpponent.getPiece() != null && positionOpponent.getPiece().getSide() != side) {
+							if(positionOpponent.getPiece().checkLegalMove(positionOpponent, new Position(positionToCheck, null), positions,true,false)){
+								return false;
+							}
+						}
+					}
+					
+				}
+			}																															
+			return true;
+		}else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Checks if the player can castle.
+	 * @param positions
+	 * @param position
+	 * @return
+	 */
+	public boolean canCastle(ArrayList<ArrayList<Position>> positions,Position position) {
+		
+		if(activePosition.getPiece()!=null && activePosition.getPiece().getTypeString().equals("king")){
+			if(!activePosition.getPiece().getHasMoved()) {
+				if(getSide() == Player.Side.WHITE) { 
+					if(position.getX() == 7 && position.getY() == 6) {
+						//short side castle
+						
+						return checkCanCastle(7,7,positions);
+					}else if(position.getX() == 7 && position.getY() == 2) {
+						//long side castle
+						return checkCanCastle(7,0,positions);
+					}
+					}else {
+						
+						if(position.getX() == 0 && position.getY() == 6) {
+							//short side castle
+							
+							return checkCanCastle(0,7,positions);
+						}else if(position.getX() == 0 && position.getY() == 2) {
+							//long side castle
+							return checkCanCastle(0,0,positions);
+						}
+						
+					}
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Sets the current active position of the player.
 	 * 
@@ -70,11 +195,15 @@ public class Player {
 	 * @param positions the current positions of the chessboard.
 	 */
 	public void setActivePosition(Position newActivePosition,ArrayList<ArrayList<Position>> positions) {
-	   if(newActivePosition!=null&&newActivePosition.getPiece()!=null&&newActivePosition.getPiece().getTypeString()=="king"&&newActivePosition.getPiece().getSide() == this.side) {
+	   if(newActivePosition!=null&&newActivePosition.getPiece()!=null&&newActivePosition.getPiece().getTypeString().equals("king")&&newActivePosition.getPiece().getSide() == this.side) {
 		   ArrayList<ArrayList<Integer>> posPositions = game.getMyKingPossibleMoves(positions,side);
 		  
 		   if(posPositions.size()==0) {
 			   System.out.println("cant move king");
+			   return;
+		   }
+		   else if(kingIsChecked&&posPositions.size()>0&&activePosition!=newActivePosition) {
+			   activePosition = newActivePosition;
 			   return;
 		   }
 		   
@@ -82,11 +211,11 @@ public class Player {
 		
 		if(activePosition == newActivePosition|| newActivePosition == null) {
 			activePosition = null;
-		}else if(kingIsChecked&&((activePosition != null &&activePosition.getPiece().getTypeString()!= "king")||activePosition == null)) {
+		}else if(kingIsChecked&&((activePosition != null && !activePosition.getPiece().getTypeString().equals("king"))||activePosition == null)) {
 			boolean escape = canIescape(positions,newActivePosition);
-			if(newActivePosition.getPiece().getTypeString()=="king"&&newActivePosition.getPiece().getSide() == this.side&&!escape) {
+			if(newActivePosition.getPiece().getTypeString().equals("king")&&newActivePosition.getPiece().getSide() == this.side&&!escape) {
 				System.out.println("you need to move your king, the king is checked");
-			}else if(newActivePosition.getPiece().getSymbolChar()== (side == Side.WHITE?'\u2654':'\u265A')) {
+			}else if(newActivePosition.getPiece().getTypeString().equals("king")) {
 				activePosition = newActivePosition;
 			}else if(escape) {
 				activePosition = newActivePosition;
@@ -119,7 +248,8 @@ public class Player {
 				if(piece.getPiece()!=null) {
 					    
 					  // check if there is a piece of yours that is not the king that can block the check
-                      if((piece.getPiece().getTypeString()=="bishop"||piece.getPiece().getTypeString()=="queen"||piece.getPiece().getTypeString()=="rook")&&newActivePosition.getPiece().getTypeString()!="king") {
+                      if((piece.getPiece().getTypeString().equals("bishop")||piece.getPiece().getTypeString().equals("queen")
+                    		  ||piece.getPiece().getTypeString().equals("rook"))&&!newActivePosition.getPiece().getTypeString().equals("king")) {
                     	  ArrayList<ArrayList<Integer>> positionsToCheck = givePositionsToCheck(piece,game.getPositionKing(positions, side));
                     	  
                     	  for(ArrayList<Integer> possiblePos:positionsToCheck) {
@@ -152,13 +282,8 @@ public class Player {
   						}
 					}
 				}
-				
-			}
-			
-//		
+			}	
 		return canEscape;
-		
-
 	}
 	/**
 	 * return positions where a piece can move to to block the check.
@@ -172,7 +297,7 @@ public class Player {
   		
   		int nx = piece.getX();
   		int ny = piece.getY();
-  		
+  		  		
   		int directionX = (nx-cx<0)?-1:1;
 		int directionY = (ny-cy<0)?-1:1;
   		
@@ -184,12 +309,11 @@ public class Player {
   		if(moveV==0) {
   			directionY=0;
   		}
-  		
-  		//System.out.println(cx+" "+cy+" "+ nx+" "+ny+" "+directionX +" "+directionY);
-  		ArrayList<ArrayList<Integer>> positionsToCheck = new ArrayList();
+  		 		
+  		ArrayList<ArrayList<Integer>> positionsToCheck = new ArrayList<ArrayList<Integer>>();
   		cx += directionX;
 	    cy += directionY;
-	   // System.out.println(cx+" "+cy+" "+ nx+" "+ny+" "+directionX +" "+directionY);
+	   
   		for(int i=0;i<8;i++) {
   			if((cx!=nx&&cy!=ny)||cx!=nx&&cy==ny||cy!=ny&&cx==nx) {
   				
@@ -203,9 +327,6 @@ public class Player {
   			}
   		}
   		
-  	        
-  		
-  
   		return positionsToCheck;
 	}
 

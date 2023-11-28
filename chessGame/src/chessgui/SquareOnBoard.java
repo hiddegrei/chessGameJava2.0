@@ -17,7 +17,6 @@ public class SquareOnBoard {
 		return button;
 	}
 	
-	
 	public int getX() {
 		return x;
 	}

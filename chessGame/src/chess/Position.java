@@ -33,6 +33,10 @@ public class Position {
 		
 	}
 	
+	/**
+	 * Makes a copy of the position.
+	 * @return
+	 */
 	public Position copy() {
 		ArrayList<Integer> newpos = new ArrayList();
 		newpos.add(this.position.get(0));

@@ -6,13 +6,13 @@ import chess.Player;
 import chess.Position;
 
 public class Rook extends Piece {
-	
+	private boolean hasMoved = false;
 
 	
 
 	public Rook(Player.Side Side) {
 		
-		super( Side,'\u2501');
+		super( Side);
 		// TODO Auto-generated constructor stub
 		
 	}
@@ -27,16 +27,15 @@ public class Rook extends Piece {
 		
 		
 	}
-	public char getSymbolChar() {
-		if(this.getSide() == Player.Side.WHITE) {
-			return '\u2656';
-			
-		}else {
-			return '\u265C';
-			
-		}
-		
+	
+	public boolean getHasMoved() {
+		return hasMoved;
 	}
+	
+	public void setHasMoved(boolean hasMoved) {
+		 this.hasMoved = hasMoved;
+	}
+
 	public String getName() {
 		if(this.getSide() == Player.Side.WHITE) {
 			return "white rook";
@@ -65,7 +64,9 @@ public class Rook extends Piece {
 		
 		
 		if(checkSide(this.getSide(), nx, ny, positions)) {
-		return this.checkStraight(cx, cy, nx, ny, positions);
+			boolean check = this.checkStraight(cx, cy, nx, ny, positions);
+			
+		return check;
 		}
 		return false;
 		

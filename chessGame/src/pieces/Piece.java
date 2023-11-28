@@ -7,13 +7,13 @@ import chess.Position;
 public abstract class Piece {
 	
 	private Player.Side Side;
-	private char symbol;
 	
 	
-	public Piece( Player.Side Side, char symbol) {
+	
+	public Piece( Player.Side Side) {
 		
 		this.Side = Side;
-		this.symbol = symbol;
+		
 	}
 	
 	/**
@@ -30,14 +30,33 @@ public abstract class Piece {
 	
 	public abstract String getTypeString();
 	
-	public abstract char getSymbolChar();
+	public abstract boolean getHasMoved();
+	
+	public abstract void  setHasMoved(boolean hasMoved);
 	
 	public abstract String getSymbol();
 	
+	/**
+	 * Checks if the desired move is legal.
+	 * @param curPosition
+	 * @param newPosition
+	 * @param positions
+	 * @param simulation
+	 * @param checkFirstMove
+	 * @return
+	 */
 	public abstract boolean checkLegalMove(Position curPosition,Position newPosition,ArrayList<ArrayList<Position>> positions, boolean simulation, boolean checkFirstMove);
 	
-	
-	
+	/**
+	 * Checks if the desired move is legal.
+	 * 
+	 * Checks if the desired move is one of the possible moves.
+	 * @param curPosition
+	 * @param newPosition
+	 * @param positions
+	 * @param possibleMoves
+	 * @return
+	 */
 	public abstract boolean checkLegalMove(Position curPosition,Position newPosition,ArrayList<ArrayList<Position>> positions,ArrayList<ArrayList<Integer>> possibleMoves);
 	
 	public boolean checkSide(Player.Side side,int nx,int ny,ArrayList<ArrayList<Position>> positions ) {
@@ -59,7 +78,7 @@ public abstract class Piece {
 	public boolean checkStraight(int cx,int cy,int nx,int ny,ArrayList<ArrayList<Position>> positions ) {
 		int directionX = (nx-cx<0)?-1:1;
 		int directionY = (ny-cy<0)?-1:1;
-		if(positions.get(nx).get(ny).getPiece()!=null&&positions.get(nx).get(ny).getPiece().getSide() == positions.get(cx).get(cy).getPiece().getSide()) {
+		if(positions.get(nx).get(ny).getPiece()!=null && positions.get(cx).get(cy).getPiece()!=null &&positions.get(nx).get(ny).getPiece().getSide() == positions.get(cx).get(cy).getPiece().getSide()) {
 			return false;
 		}
 		if(((cx == nx) && (Math.abs(ny-cy) < 8))) {

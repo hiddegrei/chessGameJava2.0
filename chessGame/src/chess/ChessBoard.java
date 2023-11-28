@@ -71,7 +71,7 @@ public class ChessBoard {
 			positions.add(rowList);
 		}
 		
-		//
+		//add the positions without pieces.
 		
 		for (int row = 2; row < 6; row++) {
 			ArrayList<Position> rowList = new ArrayList<Position>();
@@ -106,7 +106,6 @@ public class ChessBoard {
 					positions.add(rowList);
 				}
 				
-	   //
 				//create the bottom row
 				ArrayList<Position> rowList2 = new ArrayList<Position>();
 				
@@ -126,7 +125,10 @@ public class ChessBoard {
     }
 		
 		
-		
+	/**
+	 * Returns the positions of the chess board.
+	 * @return
+	 */
 	public ArrayList<ArrayList<Position>> getPositions(){
 		return positions;
 		

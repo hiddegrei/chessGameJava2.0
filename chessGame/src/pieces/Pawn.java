@@ -9,9 +9,10 @@ public class Pawn extends Piece {
 	private boolean firstMove = true;
 
 	public Pawn(Player.Side Side) {
-		super( Side,'\u2501');
+		super( Side);
 		// TODO Auto-generated constructor stub
 	}
+	@Override
 	public String getSymbol() {
 		if(this.getSide() == Player.Side.WHITE) {
 			return "C:\\\\Users\\\\hidde\\\\Downloads\\\\pawnwhite.png\\";
@@ -23,17 +24,18 @@ public class Pawn extends Piece {
 		
 		
 	}
+	@Override
+	public boolean getHasMoved() {
+		return false;
+	}
 	
-	public char getSymbolChar() {
-		if(this.getSide() == Player.Side.WHITE) {
-			return '\u2659';
-			
-		}else {
-			return '\u265F';
-			
-		}
+	@Override
+	public void setHasMoved(boolean hasMoved) {
+		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
 	public String getName() {
 		if(this.getSide() == Player.Side.WHITE) {
 			return "white pawn";
@@ -43,7 +45,7 @@ public class Pawn extends Piece {
 			
 		}
 	}
-	
+	@Override
 	public String getTypeString() {
 		return "pawn";
 	}
@@ -101,7 +103,7 @@ public class Pawn extends Piece {
 		// this check if pawn just wants to move up(down)
 			
 				
-			if(!simulation||(simulation&&!checkFirstMove)) {
+			if(!simulation||(simulation&&!checkFirstMove)&&newPosition.getPiece()==null) {
        if(((cy == ny) && ((nx-cx == (firstMove?2:1)*direction)||(nx-cx == direction)))) {
 			//vertical 1 square is possible moves
 			//now check if it legal move
@@ -134,8 +136,6 @@ public class Pawn extends Piece {
 			}
 			
        //this check if the pawn can take a piece, can move sideways
-       
-       
        if((Math.abs(cy-ny)==1 && (nx-cx == direction))) {
     	   if(positions.get(nx).get(ny).getPiece() != null) {
     		  

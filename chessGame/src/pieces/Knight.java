@@ -8,7 +8,7 @@ import chess.Position;
 public class Knight extends Piece {
 
 	public Knight(Player.Side Side) {
-		super( Side, '\u2501');
+		super( Side);
 		
 	}
 	
@@ -23,15 +23,13 @@ public class Knight extends Piece {
 		
 		
 	}
+	public boolean getHasMoved() {
+		return false;
+	}
 	
-	public char getSymbolChar() {
-		if(this.getSide() == Player.Side.WHITE) {
-			return '\u2658';
-			
-		}else {
-			return '\u265E';
-			
-		}
+	@Override
+	public void setHasMoved(boolean hasMoved) {
+		// TODO Auto-generated method stub
 		
 	}
 	
