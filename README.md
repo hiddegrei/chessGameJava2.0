@@ -18,8 +18,9 @@ github link: https://github.com/hiddegrei/chessGameHZ
 
 In de chess game heb ik gebruikt van de factory method. De Queen, King, Rook, Pawn and Knight classes en
 extenden allemaal de Piece class en implementeren hun eigen methoden voor bijvoorbeeld het bepalen van een legale zet.
-
+```diff
 - Voor resit
+```
 Ik maak nu gebruik van verschillende factory classes voor het maken van de verschillende stukken. Deze factory classes zijn te vinden in de pieceFactory folder en maken gebruik van de PieceFactory interface. 
 Er is dus nu een KingFactory, QueenFactory, RookFactory, KnightFactory, BishopFactory en PawnFactory. Deze worden nu gebruikt wanneer in de ChessBoard.java class de methode initializeBoard() wordt aangeroepen.
 
