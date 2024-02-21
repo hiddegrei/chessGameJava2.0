@@ -39,6 +39,12 @@ met een nieuwe instantie van de bijbehorende Piece class. De Position en Piece k
 De Queen, King, Rook, Pawn en Knight classes implementeren hun eigen versie van de checkLegalMove() functie, elk soort stuk heeft namelijk zijn eigen eisen voor het bepalen van een legale zet.
 Deze heeft wordt overgeërfd van de Piece class.
 
+```diff
+- onderstaand is voor resit
+
+```
+MethodDecorator class toegevoegd, te vinden in de methodDecorator folder.
+
 **Composite**
 
 De Game class heeft positions, de positions bestaan uit individuele positions en de positions bevatten zelf een Piece. Terwijl Piece een superclass is van de individuele stukken 
