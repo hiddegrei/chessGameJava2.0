@@ -24,10 +24,7 @@ extenden allemaal de Piece class en implementeren hun eigen methoden voor bijvoo
 ```
 Ik maak nu gebruik van verschillende factory classes voor het maken van de verschillende stukken. Deze factory classes zijn te vinden in de pieceFactory folder en maken gebruik van de PieceFactory interface. 
 Er is dus nu een KingFactory, QueenFactory, RookFactory, KnightFactory, BishopFactory en PawnFactory. Deze worden nu gebruikt wanneer in de ChessBoard.java class de methode initializeBoard() wordt aangeroepen.
-```diff
-- voor resit
 
-```
 
 
 **Prototype**
